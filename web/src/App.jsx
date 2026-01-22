@@ -33,10 +33,10 @@ function App() {
         // Adicionei o fetch da formacao aqui
         const [resSobre, resFormacao, resSkills, resProjetos] =
           await Promise.all([
-            fetch("http://localhost:3000/api/sobre"),
-            fetch("http://localhost:3000/api/formacao"),
-            fetch("http://localhost:3000/api/skills"),
-            fetch("http://localhost:3000/api/projetos"),
+            fetch("https://portfolio-eduardo.onrender.com/api/sobre"),
+            fetch("https://portfolio-eduardo.onrender.com/api/formacao"),
+            fetch("https://portfolio-eduardo.onrender.com/api/skills"),
+            fetch("https://portfolio-eduardo.onrender.com/api/projetos"),
           ]);
 
         const dadosSobre = await resSobre.json();
