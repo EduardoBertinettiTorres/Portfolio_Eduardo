@@ -10,114 +10,52 @@ import {
   CheckCircle2,
   Send,
   Smartphone,
-  Code, // <--- Adicionado para corrigir o erro anterior
+  Code,
+  GraduationCap, // <--- Novo Ícone
 } from "lucide-react";
 
 function App() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [projetos, setProjetos] = useState([]);
 
-  // Estado para o formulário
+  // Estados da API
+  const [dados, setDados] = useState(null);
+  const [formacao, setFormacao] = useState([]); // <--- Novo Estado
+  const [skills, setSkills] = useState({ hardSkills: [], softSkills: [] });
+  const [projetos, setProjetos] = useState([]);
+  const [loading, setLoading] = useState(true);
+
   const [formStatus, setFormStatus] = useState("");
 
-  // Dados Pessoais
-  const dados = {
-    nome: "Eduardo Bertinetti Torres",
-    cargo: "Full Stack Developer",
-    bio: "Apaixonado por tecnologia e desenvolvimento de software. Tecnólogo em Sistemas para Internet, formado pelo IFSul Pelotas. Sempre em busca de novos desafios e aprendizados na área de desenvolvimento web.",
-    experiencia: [
-      {
-        ano: "Nov 2024 - Atual",
-        empresa: "Proenergia",
-        cargo: "Projetista Elétrico",
-        desc: "Atuando na empresa parceira do Grupo Ceee Equatorial, projetando redes elétricas de média e baixa tensão.",
-      },
-      {
-        ano: "Fev 2024 - Set 2024",
-        empresa: "Prefeitura Municipal de Pelotas",
-        cargo: "Estagiário de TI",
-        desc: "Manutenção de computadores, construção de redes lógicas de internet e suporte técnico em geral.",
-      },
-      {
-        ano: "Dez 2021 - Fev 2024",
-        empresa: "Techneer Componentes Metálicos LTDA",
-        cargo: "Auxiliar de Produção",
-        desc: "Monitoramento de produção e controle de qualidade.",
-      },
-    ],
-  };
-
-  // --- AQUI ESTAVA FALTANDO A DEFINIÇÃO DAS SKILLS ---
-
-  // Hard Skills com Ícones Reais (URLs do Devicon)
-  const hardSkills = [
-    {
-      name: "JavaScript",
-      icon: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/javascript/javascript-original.svg",
-    },
-    {
-      name: "TypeScript",
-      icon: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/typescript/typescript-original.svg",
-    },
-    {
-      name: "React.js",
-      icon: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/react/react-original.svg",
-    },
-    {
-      name: "React Native",
-      icon: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/react/react-original.svg",
-    },
-    {
-      name: "Node.js",
-      icon: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/nodejs/nodejs-original.svg",
-    },
-    {
-      name: "Java",
-      icon: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/java/java-original.svg",
-    },
-    {
-      name: "Tailwind CSS",
-      icon: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/tailwindcss/tailwindcss-original.svg",
-    },
-    {
-      name: "Git",
-      icon: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/git/git-original.svg",
-    },
-  ];
-
-  const softSkills = [
-    "Proativo",
-    "Comunicativo",
-    "Trabalho em Equipe",
-    "Resolução de Problemas",
-    "Adaptabilidade",
-    "Gestão de Tempo",
-  ];
-
-  // Projeto em Destaque (Manual)
-  const bikeTrackerProject = {
-    id: "biketracker-manual",
-    titulo: "BikeTracker",
-    descricao:
-      "Aplicação mobile desenvolvida para ciclistas registrarem e monitorarem suas atividades, rotas e desempenho em tempo real.",
-    link: "https://github.com/EduardoBertinettiTorres/pdm_Eduardo_Torres.git", // Coloque o link real aqui se tiver
-    imagem: "/LogoBikeTracker.jpg", // Caminho na pasta public
-    techs: ["React Native", "Firebase", "Maps API"],
-  };
-
-  // Buscando projetos da API + Adicionando o BikeTracker
+  // Busca dados da API
   useEffect(() => {
-    fetch("http://localhost:3000/api/projetos")
-      .then((res) => res.json())
-      .then((data) => {
-        // Combinamos o projeto manual com os da API
-        setProjetos([bikeTrackerProject, ...data]);
-      })
-      .catch((err) => {
-        console.error("Erro ao buscar projetos. Backend está rodando?", err);
-        // Se a API falhar, mostra pelo menos o BikeTracker
-        setProjetos([bikeTrackerProject]);
-      });
+    const fetchData = async () => {
+      try {
+        // Adicionei o fetch da formacao aqui
+        const [resSobre, resFormacao, resSkills, resProjetos] =
+          await Promise.all([
+            fetch("http://localhost:3000/api/sobre"),
+            fetch("http://localhost:3000/api/formacao"),
+            fetch("http://localhost:3000/api/skills"),
+            fetch("http://localhost:3000/api/projetos"),
+          ]);
+
+        const dadosSobre = await resSobre.json();
+        const dadosFormacao = await resFormacao.json();
+        const dadosSkills = await resSkills.json();
+        const dadosProjetos = await resProjetos.json();
+
+        setDados(dadosSobre);
+        setFormacao(dadosFormacao);
+        setSkills(dadosSkills);
+        setProjetos(dadosProjetos);
+      } catch (error) {
+        console.error("Erro ao conectar com a API:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
   }, []);
 
   const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
@@ -127,13 +65,10 @@ function App() {
     const form = e.target;
     const data = new FormData(form);
 
-    // Integração com Formspree
     fetch(form.action, {
       method: form.method,
       body: data,
-      headers: {
-        Accept: "application/json",
-      },
+      headers: { Accept: "application/json" },
     }).then((response) => {
       if (response.ok) {
         setFormStatus("Mensagem enviada com sucesso! 🚀");
@@ -143,6 +78,31 @@ function App() {
       }
     });
   };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-zinc-950 flex items-center justify-center text-orange-500">
+        <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-orange-500"></div>
+      </div>
+    );
+  }
+
+  if (!dados)
+    return (
+      <div className="text-white text-center mt-20">
+        Erro ao carregar dados da API.
+      </div>
+    );
+
+  // Lista de menu atualizada
+  const menuItems = [
+    "Sobre",
+    "Formação",
+    "Habilidades",
+    "Projetos",
+    "Experiência",
+    "Contato",
+  ];
 
   return (
     <div className="bg-zinc-950 text-zinc-100 font-sans selection:bg-orange-500 selection:text-white">
@@ -154,16 +114,9 @@ function App() {
               &lt;Eduardo /&gt;
             </div>
 
-            {/* Desktop Menu */}
             <div className="hidden md:block">
               <div className="ml-10 flex items-baseline space-x-8">
-                {[
-                  "Sobre",
-                  "Habilidades",
-                  "Projetos",
-                  "Experiência",
-                  "Contato",
-                ].map((item) => (
+                {menuItems.map((item) => (
                   <a
                     key={item}
                     href={`#${item.toLowerCase()}`}
@@ -175,7 +128,6 @@ function App() {
               </div>
             </div>
 
-            {/* Mobile Menu Button */}
             <div className="md:hidden">
               <button
                 onClick={toggleMenu}
@@ -187,17 +139,10 @@ function App() {
           </div>
         </div>
 
-        {/* Mobile Menu Dropdown */}
         {isMenuOpen && (
           <div className="md:hidden bg-zinc-900 border-b border-zinc-800 animate-fadeIn">
             <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
-              {[
-                "Sobre",
-                "Habilidades",
-                "Projetos",
-                "Experiência",
-                "Contato",
-              ].map((item) => (
+              {menuItems.map((item) => (
                 <a
                   key={item}
                   href={`#${item.toLowerCase()}`}
@@ -212,19 +157,17 @@ function App() {
         )}
       </nav>
 
-      {/* --- HERO SECTION (Sobre) --- */}
+      {/* --- HERO SECTION --- */}
       <section
         id="sobre"
         className="relative min-h-screen flex items-center justify-center pt-20 overflow-hidden"
       >
-        {/* Background Effects */}
         <div className="absolute inset-0 z-0">
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-orange-900/20 via-zinc-950 to-zinc-950"></div>
           <div className="absolute inset-0 opacity-10 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')]"></div>
         </div>
 
         <div className="relative z-10 w-full max-w-6xl mx-auto px-4 flex flex-col-reverse md:flex-row items-center gap-12">
-          {/* Texto de Apresentação */}
           <div className="flex-1 text-center md:text-left">
             <span className="inline-block py-1 px-3 rounded-full bg-orange-500/10 text-orange-500 border border-orange-500/20 text-sm font-semibold mb-6 animate-pulse">
               Bem-vindo ao meu portfólio
@@ -255,22 +198,17 @@ function App() {
             </div>
           </div>
 
-          {/* Foto de Perfil */}
           <div className="flex-1 flex justify-center md:justify-end relative">
             <div className="relative w-64 h-64 md:w-80 md:h-80">
-              {/* Círculo decorativo atrás */}
               <div className="absolute inset-0 bg-orange-500 rounded-full blur-2xl opacity-20 animate-pulse"></div>
-              {/* Foto */}
               <img
-                src="/perfil.jpg" // Certifique-se de ter essa imagem na pasta public
+                src="/perfil.jpg"
                 alt="Foto de Perfil"
                 className="relative w-full h-full object-cover rounded-full border-4 border-zinc-900 shadow-2xl ring-2 ring-orange-500/50"
                 onError={(e) => {
                   e.target.src = "https://github.com/eduardobtorres.png";
-                }} // Fallback para foto do github
+                }}
               />
-
-              {/* Card Flutuante Decorativo */}
               <div
                 className="absolute -bottom-4 -left-4 bg-zinc-900/90 backdrop-blur border border-zinc-800 p-3 rounded-xl shadow-lg flex items-center gap-3 animate-bounce"
                 style={{ animationDuration: "3s" }}
@@ -280,10 +218,56 @@ function App() {
                 </div>
                 <div>
                   <p className="text-xs text-zinc-400">Foco atual</p>
-                  <p className="text-sm font-bold text-white">Busco oportunidades</p>
+                  <p className="text-sm font-bold text-white">
+                    Busco oportunidades
+                  </p>
                 </div>
               </div>
             </div>
+          </div>
+        </div>
+      </section>
+
+      {/* --- NOVA SEÇÃO: FORMAÇÃO ACADÊMICA --- */}
+      <section
+        id="formação"
+        className="py-20 bg-zinc-900/30 border-t border-zinc-800"
+      >
+        <div className="max-w-6xl mx-auto px-4">
+          <h2 className="text-3xl md:text-4xl font-bold mb-16 border-l-4 border-orange-500 pl-4">
+            Formação Acadêmica
+          </h2>
+
+          <div className="grid md:grid-cols-2 gap-8">
+            {formacao.map((item) => (
+              <div
+                key={item.id}
+                className="bg-zinc-950 p-8 rounded-2xl border border-zinc-800 hover:border-orange-500/50 transition-all hover:shadow-lg hover:shadow-orange-500/10 group"
+              >
+                <div className="flex items-start gap-4">
+                  <div className="p-3 bg-zinc-900 rounded-xl group-hover:bg-orange-600 transition-colors">
+                    <GraduationCap
+                      className="text-orange-500 group-hover:text-white"
+                      size={32}
+                    />
+                  </div>
+                  <div>
+                    <span className="text-orange-500 text-sm font-bold tracking-wider uppercase mb-1 block">
+                      {item.nivel}
+                    </span>
+                    <h3 className="text-xl font-bold text-white mb-2">
+                      {item.curso}
+                    </h3>
+                    <h4 className="text-zinc-400 font-medium mb-4">
+                      {item.instituicao}
+                    </h4>
+                    <p className="text-zinc-500 text-sm leading-relaxed border-t border-zinc-900 pt-4">
+                      {item.descricao}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
       </section>
@@ -299,13 +283,12 @@ function App() {
           </h2>
 
           <div className="grid md:grid-cols-2 gap-12">
-            {/* Hard Skills */}
             <div>
               <h3 className="text-xl font-semibold mb-6 text-zinc-300 flex items-center gap-2">
                 <Code className="text-orange-500" /> Hard Skills
               </h3>
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-                {hardSkills.map((skill) => (
+                {skills.hardSkills.map((skill) => (
                   <div
                     key={skill.name}
                     className="group bg-zinc-900 p-4 rounded-xl border border-zinc-800 hover:border-orange-500/50 transition-all hover:-translate-y-1 flex flex-col items-center justify-center gap-3"
@@ -323,13 +306,12 @@ function App() {
               </div>
             </div>
 
-            {/* Soft Skills */}
             <div>
               <h3 className="text-xl font-semibold mb-6 text-zinc-300 flex items-center gap-2">
                 <CheckCircle2 className="text-orange-500" /> Soft Skills
               </h3>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                {softSkills.map((skill) => (
+                {skills.softSkills.map((skill) => (
                   <div
                     key={skill}
                     className="flex items-center gap-3 p-4 bg-zinc-900/50 rounded-lg border border-zinc-800/50 hover:bg-zinc-900 transition-colors"
@@ -357,7 +339,6 @@ function App() {
                 key={projeto.id}
                 className="bg-zinc-900 rounded-xl overflow-hidden border border-zinc-800 hover:border-orange-500/50 transition-all group flex flex-col shadow-lg hover:shadow-orange-500/10"
               >
-                {/* Imagem do projeto */}
                 <div className="h-48 bg-zinc-800 relative overflow-hidden">
                   {projeto.imagem ? (
                     <img
@@ -373,7 +354,6 @@ function App() {
                       />
                     </div>
                   )}
-                  {/* Overlay Gradiente */}
                   <div className="absolute inset-0 bg-gradient-to-t from-zinc-900 via-transparent to-transparent opacity-80"></div>
                 </div>
 
@@ -381,8 +361,6 @@ function App() {
                   <h3 className="text-xl font-bold mb-2 text-white group-hover:text-orange-400 transition-colors">
                     {projeto.titulo}
                   </h3>
-
-                  {/* Tags de tecnologia se existirem */}
                   {projeto.techs && (
                     <div className="flex flex-wrap gap-2 mb-3">
                       {projeto.techs.map((tech) => (
@@ -395,7 +373,6 @@ function App() {
                       ))}
                     </div>
                   )}
-
                   <p className="text-zinc-400 text-sm mb-6 flex-1 line-clamp-3">
                     {projeto.descricao}
                   </p>
@@ -423,19 +400,17 @@ function App() {
           <div className="space-y-12">
             {dados.experiencia.map((exp, index) => (
               <div key={index} className="relative pl-8 md:pl-0">
-                {/* Linha do tempo visual (Desktop) */}
                 <div className="hidden md:block absolute left-[50%] top-0 bottom-0 w-px bg-zinc-800 -translate-x-1/2"></div>
-
                 <div
                   className={`md:flex items-center justify-between ${
                     index % 2 === 0 ? "flex-row-reverse" : ""
                   } gap-12`}
                 >
-                  {/* Data e Bolinha */}
                   <div className="hidden md:block w-1/2 relative">
                     <div
-                      className={`absolute top-6 w-4 h-4 bg-orange-500 rounded-full border-4 border-zinc-950 shadow-[0_0_15px_rgba(249,115,22,0.8)] z-10 
-                      ${index % 2 === 0 ? "-left-[26px]" : "-right-[26px]"}`}
+                      className={`absolute top-6 w-4 h-4 bg-orange-500 rounded-full border-4 border-zinc-950 shadow-[0_0_15px_rgba(249,115,22,0.8)] z-10 ${
+                        index % 2 === 0 ? "-left-[26px]" : "-right-[26px]"
+                      }`}
                     ></div>
                     <div
                       className={`text-orange-500 font-mono font-bold ${
@@ -445,14 +420,10 @@ function App() {
                       {exp.ano}
                     </div>
                   </div>
-
-                  {/* Card Mobile (Bolinha) */}
                   <div className="md:hidden absolute left-0 top-2 w-3 h-3 bg-orange-500 rounded-full shadow-[0_0_10px_rgba(249,115,22,0.5)]"></div>
                   <div className="md:hidden text-orange-500 font-mono text-sm mb-1">
                     {exp.ano}
                   </div>
-
-                  {/* Conteúdo */}
                   <div className="md:w-1/2 bg-zinc-900 p-6 rounded-xl border border-zinc-800 hover:border-orange-500/30 transition-all hover:-translate-y-1 shadow-lg">
                     <h3 className="text-xl font-bold text-white mb-1">
                       {exp.cargo}
@@ -483,9 +454,7 @@ function App() {
               Tem uma ideia de projeto ou quer bater um papo sobre tecnologia?
             </p>
           </div>
-
           <div className="grid md:grid-cols-2 gap-12">
-            {/* Informações de Contato */}
             <div className="space-y-6">
               <h3 className="text-2xl font-bold text-white mb-6">
                 Conecte-se comigo
@@ -514,19 +483,14 @@ function App() {
               </div>
               <p className="text-zinc-500 mt-8 text-sm leading-relaxed">
                 Estou disponível para trabalhos freelancer e oportunidades CLT.
-                Sinta-se à vontade para me mandar uma mensagem direta!
               </p>
             </div>
-
-            {/* Formulário */}
             <form
-              action="https://formspree.io/f/móvel"
+              action="https://formspree.io/f/xbdgldvr"
               method="POST"
               onSubmit={handleSubmit}
               className="bg-zinc-900 p-8 rounded-2xl border border-zinc-800 shadow-xl"
             >
-              {/* LEMBRETE: TROQUE O ACTION PELO SEU LINK DO FORMSPREE */}
-
               <div className="space-y-4">
                 <div>
                   <label
@@ -544,7 +508,6 @@ function App() {
                     className="w-full bg-zinc-950 border border-zinc-800 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500 transition-all"
                   />
                 </div>
-
                 <div>
                   <label
                     htmlFor="message"
@@ -557,24 +520,21 @@ function App() {
                     id="message"
                     rows="4"
                     required
-                    placeholder="Olá Eduardo, gostaria de falar sobre..."
+                    placeholder="Olá Eduardo..."
                     className="w-full bg-zinc-950 border border-zinc-800 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500 transition-all resize-none"
                   ></textarea>
                 </div>
-
                 <input
                   type="hidden"
                   name="_subject"
                   value="Novo contato do Portfólio!"
                 />
-
                 <button
                   type="submit"
                   className="w-full bg-orange-600 hover:bg-orange-700 text-white font-bold py-3 px-4 rounded-lg transition-all flex items-center justify-center gap-2 hover:shadow-lg hover:shadow-orange-500/20"
                 >
                   Enviar Mensagem <Send size={18} />
                 </button>
-
                 {formStatus && (
                   <p className="text-center text-sm text-green-400 mt-2 animate-pulse">
                     {formStatus}
@@ -583,11 +543,10 @@ function App() {
               </div>
             </form>
           </div>
-
           <footer className="mt-20 pt-8 border-t border-zinc-800 text-center text-zinc-600 text-sm">
             <p>
-              &copy; 2024 Eduardo Bertinetti Torres. Desenvolvido com{" "}
-              <span className="text-orange-500">React & Vibe</span>.
+              &copy; 2026 Eduardo Bertinetti Torres. Desenvolvido com{" "}
+              <span className="text-orange-500">React & Express</span>.
             </p>
           </footer>
         </div>
