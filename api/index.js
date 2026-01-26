@@ -14,6 +14,7 @@ const dadosPessoais = {
   nome: "Eduardo Bertinetti Torres",
   cargo: "Full Stack Developer",
   bio: "Apaixonado por tecnologia e desenvolvimento de software. Tecnólogo em Sistemas para Internet, formado pelo IFSul Pelotas. Sempre em busca de novos desafios e aprendizados na área de desenvolvimento web.",
+  telefone: "5553984014033",
   experiencia: [
     {
       ano: "Nov 2024 - Atual",
