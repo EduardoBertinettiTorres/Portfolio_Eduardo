@@ -30,8 +30,8 @@ function App() {
     const fetchData = async () => {
       try {
         // URL da API (Render ou Localhost)
-        // const baseUrl = "https://portfolio-eduardo.onrender.com";
-        const baseUrl = "http://localhost:3000";
+        const baseUrl = "https://portfolio-eduardo.onrender.com";
+        // const baseUrl = "http://localhost:3000";
 
         const [resSobre, resFormacao, resSkills, resProjetos] =
           await Promise.all([
@@ -464,7 +464,7 @@ function App() {
                 {/* --- BOTÃO WHATSAPP NOVO (Substituindo o Flutuante) --- */}
                 {dados.telefone && (
                   <a
-                    href={`https://wa.me/${dados.telefone}?text=Olá Eduardo, vi seu portfólio e gostaria de conversar!`}  
+                    href={`https://wa.me/${dados.telefone}?text=Olá Eduardo, vi seu portfólio e gostaria de conversar!`}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="p-4 bg-zinc-900 rounded-xl text-zinc-300 hover:text-white hover:bg-green-600 transition-all border border-zinc-800 hover:scale-110"
