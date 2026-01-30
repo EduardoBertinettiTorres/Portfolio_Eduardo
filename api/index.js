@@ -108,7 +108,7 @@ const projetos = [
     titulo: "BikeTracker",
     descricao:
       "Aplicação mobile desenvolvida para ciclistas registrarem e monitorarem suas atividades, rotas e desempenho em tempo real.",
-    link: "https://github.com/EduardoBertinettiTorres/pdm_Eduardo_Torres.git",
+    link: "https://github.com/eduardotorres-17/BikeTracker-Aplicativo-TCC.git",
     imagem: "/LogoBikeTracker.jpg",
     techs: ["React Native", "Firebase", "Mapbox API"],
   },

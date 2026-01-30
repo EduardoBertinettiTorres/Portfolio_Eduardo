@@ -481,7 +481,7 @@ function App() {
                 )}
 
                 <a
-                  href="https://github.com/EduardoBertinettiTorres"
+                  href="https://github.com/eduardotorres-17"
                   target="_blank"
                   className="p-4 bg-zinc-900 rounded-xl text-zinc-300 hover:text-white hover:bg-orange-600 transition-all border border-zinc-800 hover:scale-110"
                 >
